@@ -1,5 +1,6 @@
 package com.wannistudio.httpshttp2;
 
+import org.springframework.boot.Banner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,8 +16,13 @@ public class HttpsHttp2Application {
     }
 
     public static void main(String[] args) {
-
-        SpringApplication.run(HttpsHttp2Application.class, args);
+        SpringApplication app = new SpringApplication(HttpsHttp2Application.class);
+//        app.setBannerMode(Banner.Mode.OFF);
+//        app.setBanner((environment, sourceClass, out) -> {
+//            out.println("banner");
+//        });
+        app.run(args);
+//        SpringApplication.run(HttpsHttp2Application.class, args);
 
     }
 
