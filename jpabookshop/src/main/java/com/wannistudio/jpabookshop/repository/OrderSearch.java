@@ -1,0 +1,13 @@
+package com.wannistudio.jpabookshop.repository;
+
+import com.wannistudio.jpabookshop.domain.OrderStatus;
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter @Setter
+public class OrderSearch {
+
+    private String memberName;
+    private OrderStatus orderStatus; // 주문상태 (ORDER, CANCEL)
+
+}
