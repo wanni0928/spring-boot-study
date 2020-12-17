@@ -10,7 +10,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Stream;
 
 @Entity
 @Table(name = "orders")
@@ -24,19 +23,20 @@ public class Order {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
-    private Member member;
+    private Member member; //주문 회원
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     private List<OrderItem> orderItems = new ArrayList<>();
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "delivery_id")
-    private Delivery delivery;
+    private Delivery delivery; //배송정보
 
-    private LocalDateTime orderDate; // 주문시간
+    private LocalDateTime orderDate; //주문시간
 
     @Enumerated(EnumType.STRING)
-    private OrderStatus status; // ORDER, CANCEL
+    private OrderStatus status; //주문상태 [ORDER, CANCEL]
+
 
     // 연관관계 편의 메서드 (양방향 연관관계 시 필요.)
     public void setMember(Member member) {
@@ -74,7 +74,7 @@ public class Order {
      * 주문 취소
     */
     public void cancel() {
-        if(delivery.getStatus() == DelivertStatus.COMP) {
+        if(delivery.getStatus() == DeliveryStatus.COMP) {
             throw new IllegalStateException("이미 배송완료된 상품은 취소가 불가능 합니다.");
         }
 

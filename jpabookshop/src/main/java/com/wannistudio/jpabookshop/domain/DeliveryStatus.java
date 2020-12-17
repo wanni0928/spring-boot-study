@@ -1,5 +1,5 @@
 package com.wannistudio.jpabookshop.domain;
 
-public enum DelivertStatus {
+public enum DeliveryStatus {
     READY, COMP
 }
