@@ -28,7 +28,7 @@ public class CustomerRepository {
     }
 
     public List<Customer> findByName(String name) {
-        return em.createQuery("select c from Customer c where c.name = :name", Customer.class)
+        return em.createQuery("select c from Customer c where c.customerName = :name", Customer.class)
                 .setParameter("name", name)
                 .getResultList();
     }

@@ -1,6 +1,7 @@
 package com.wannistudio.managementapi.service;
 
 import com.wannistudio.managementapi.domain.Employee;
+import com.wannistudio.managementapi.domain.WorkStatus;
 import com.wannistudio.managementapi.repository.EmployeeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -10,7 +11,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
+@Transactional(readOnly = true)
 public class EmployeeService {
     private final EmployeeRepository employeeRepository;
 
@@ -34,5 +35,11 @@ public class EmployeeService {
 
     public Employee findOne(Long employeeId) {
         return employeeRepository.findOne(employeeId);
+    }
+
+    @Transactional
+    public void retired(Long employeeId) {
+        Employee employee = employeeRepository.findOne(employeeId);
+        employee.setWorkStatus(WorkStatus.QUIT);
     }
 }

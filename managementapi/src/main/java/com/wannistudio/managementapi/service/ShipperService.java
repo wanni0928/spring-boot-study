@@ -14,6 +14,7 @@ import java.util.List;
 public class ShipperService {
     private final ShipperRepository shipperRepository;
 
+    @Transactional
     public Long saveShipper(Shipper shipper) {
         shipperRepository.save(shipper);
         return shipper.getId();

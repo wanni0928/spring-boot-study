@@ -27,7 +27,7 @@ public class EmployeeRepository {
     }
 
     public List<Employee> findByName(String name) {
-        return em.createQuery("select e from Employee e where e.EmployeeName = :name", Employee.class)
+        return em.createQuery("select e from Employee e where e.employeeName = :name", Employee.class)
                 .setParameter("name", name)
                 .getResultList();
     }
