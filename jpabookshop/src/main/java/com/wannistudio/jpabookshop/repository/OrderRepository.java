@@ -2,6 +2,7 @@ package com.wannistudio.jpabookshop.repository;
 
 import com.wannistudio.jpabookshop.domain.Order;
 import lombok.RequiredArgsConstructor;
+import org.aspectj.weaver.ast.Or;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
 
@@ -66,5 +67,14 @@ public class OrderRepository {
                 " join fetch o.member m" +
                 " join fetch o.delivery d", Order.class
         ).getResultList();
+    }
+
+    public List<Order> findAllWithItem() { // distinct는 DB에 distinct 키워드를 날려준다. 엔티티 데이터가 중복될 경우, 중복된 데이터를 지워준다.
+        return em.createQuery("select distinct o from Order o" +
+                    " join fetch o.member m" +
+                    " join fetch o.delivery d" +
+                    " join fetch o.orderItems oi" +
+                    " join fetch oi.item i", Order.class)
+                .getResultList();
     }
 }
