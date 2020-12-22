@@ -6,6 +6,8 @@ import com.wannistudio.jpabookshop.domain.OrderItem;
 import com.wannistudio.jpabookshop.domain.OrderStatus;
 import com.wannistudio.jpabookshop.repository.OrderRepository;
 import com.wannistudio.jpabookshop.repository.OrderSearch;
+import com.wannistudio.jpabookshop.repository.order.query.OrderQueryDto;
+import com.wannistudio.jpabookshop.repository.order.query.OrderQueryRepository;
 import lombok.Data;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +25,7 @@ import java.util.stream.Collectors;
 public class OrderApiController {
 
     private final OrderRepository orderRepository;
+    private final OrderQueryRepository orderQueryRepository;
 
     @GetMapping("/api/v1/orders") // @JsonIgnore를 따로 찾아서 해야하는 번거로 움 + 엔티티 직접노출(변경에 열려있음...)
     public List<Order> ordersV1() {
@@ -65,6 +68,11 @@ public class OrderApiController {
         return orders.stream()
                 .map(OrderDto::new)
                 .collect(Collectors.toList());
+    }
+
+    @GetMapping("/api/v4/orders")
+    public List<OrderQueryDto> ordersV4() { // n+1 문제 발생.
+        return orderQueryRepository.findOrderQueryDtos();
     }
 
     // 페이징 처리

@@ -1,5 +1,7 @@
 package com.wannistudio.jpabookshop.repository.order.simplequery;
 
+import com.wannistudio.jpabookshop.repository.order.query.OrderItemQueryDto;
+import com.wannistudio.jpabookshop.repository.order.query.OrderQueryDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
