@@ -77,4 +77,14 @@ public class OrderRepository {
                     " join fetch oi.item i", Order.class)
                 .getResultList();
     }
+
+    public List<Order> findAllWithMemberDelivery(int offset, int limit) {
+        // toOne 관계는 fetchjoin 해도 문제없이 paging이 진행이 된다.
+        return em.createQuery("select o from Order o" +
+                " join fetch o.member m" +
+                " join fetch o.delivery d", Order.class
+        ).setFirstResult(offset)
+                .setMaxResults(limit)
+                .getResultList();
+    }
 }
