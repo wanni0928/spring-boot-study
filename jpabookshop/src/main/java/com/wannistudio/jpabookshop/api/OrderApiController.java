@@ -6,6 +6,8 @@ import com.wannistudio.jpabookshop.domain.OrderItem;
 import com.wannistudio.jpabookshop.domain.OrderStatus;
 import com.wannistudio.jpabookshop.repository.OrderRepository;
 import com.wannistudio.jpabookshop.repository.OrderSearch;
+import com.wannistudio.jpabookshop.repository.order.query.OrderFlatDto;
+import com.wannistudio.jpabookshop.repository.order.query.OrderItemQueryDto;
 import com.wannistudio.jpabookshop.repository.order.query.OrderQueryDto;
 import com.wannistudio.jpabookshop.repository.order.query.OrderQueryRepository;
 import lombok.Data;
@@ -19,6 +21,11 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.*;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toList;
+import static org.yaml.snakeyaml.nodes.NodeId.mapping;
 
 @RestController
 @RequiredArgsConstructor
@@ -46,7 +53,7 @@ public class OrderApiController {
         List<Order> orders = orderRepository.findAllByString(new OrderSearch());
         return orders.stream()
                 .map(OrderDto::new)
-                .collect(Collectors.toList());
+                .collect(toList());
     }
 
     @GetMapping("/api/v3/orders")
@@ -58,7 +65,7 @@ public class OrderApiController {
         List<Order> orders = orderRepository.findAllWithItem();
         return orders.stream()
                 .map(OrderDto::new)
-                .collect(Collectors.toList());
+                .collect(toList());
     }
 
     @GetMapping("/api/v3.1/orders")
@@ -67,12 +74,30 @@ public class OrderApiController {
         List<Order> orders = orderRepository.findAllWithMemberDelivery(offset, limit);
         return orders.stream()
                 .map(OrderDto::new)
-                .collect(Collectors.toList());
+                .collect(toList());
     }
 
     @GetMapping("/api/v4/orders")
     public List<OrderQueryDto> ordersV4() { // n+1 문제 발생.
         return orderQueryRepository.findOrderQueryDtos();
+    }
+
+    @GetMapping("/api/v5/orders")
+    public List<OrderQueryDto> ordersV5() {
+        return orderQueryRepository.findAllByDto_optimization();
+    }
+
+    @GetMapping("/api/v6/orders")
+    public List<OrderQueryDto> ordersV6() { // 데이터가 살짝 뻥튀기 되었지만, 한방 쿼리로 해결된다.
+        List<OrderFlatDto> flats = orderQueryRepository.findAllByDto_flat();
+        return flats.stream()
+                    .collect(
+                            groupingBy(o -> new OrderQueryDto(o.getId(), o.getName(), o.getOrderDate(), o.getOrderStatus(), o.getAddress()),
+                            mapping(o -> new OrderItemQueryDto(o.getId(), o.getItemName(), o.getOrderPrice(), o.getCount()), toList())))
+                    .entrySet().stream()
+                        .map(e -> new OrderQueryDto(e.getKey().getId(),e.getKey().getName(), e.getKey().getOrderDate(), e.getKey().getOrderStatus(),
+                                e.getKey().getAddress(), e.getValue()))
+                .collect(toList());
     }
 
     // 페이징 처리
@@ -94,7 +119,7 @@ public class OrderApiController {
             order.getOrderItems().forEach(orderItem -> orderItem.getItem().getName());
             orderItems = order.getOrderItems().stream()
                 .map(OrderItemDto::new)
-                .collect(Collectors.toList());
+                .collect(toList());
         }
     }
 

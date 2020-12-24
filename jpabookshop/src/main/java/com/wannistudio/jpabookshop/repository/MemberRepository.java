@@ -2,36 +2,16 @@ package com.wannistudio.jpabookshop.repository;
 
 import com.wannistudio.jpabookshop.domain.Member;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.util.List;
 
-@Repository
-@RequiredArgsConstructor
-public class MemberRepository {
+public interface MemberRepository extends JpaRepository<Member, Long> {// <타입, PK>
 
-//    @PersistenceContext
-//    private EntityManager em;
-    private final EntityManager em; // spring data jpa가 있어서 @Autowired로도 영속성 컨텍스트가 형성된다.
+    // select m from Member m where m.name = ? 로 자동매핑
+    List<Member> findByName(String name);
 
-    public void save(Member member) {
-        em.persist(member);
-    }
-
-    public Member findOne(Long id) {
-        return em.find(Member.class, id);
-    }
-
-    public List<Member> findAll() {
-        return em.createQuery("select m from Member m", Member.class)
-                .getResultList();
-    }
-
-    public List<Member> findByName(String name) {
-        return em.createQuery("select m from Member m where m.name = :name", Member.class)
-                .setParameter("name", name)
-                .getResultList();
-    }
 }

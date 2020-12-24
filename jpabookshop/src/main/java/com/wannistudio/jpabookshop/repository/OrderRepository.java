@@ -1,6 +1,11 @@
 package com.wannistudio.jpabookshop.repository;
 
+import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.wannistudio.jpabookshop.domain.Order;
+import com.wannistudio.jpabookshop.domain.OrderStatus;
+import com.wannistudio.jpabookshop.domain.QMember;
+import com.wannistudio.jpabookshop.domain.QOrder;
 import lombok.RequiredArgsConstructor;
 import org.aspectj.weaver.ast.Or;
 import org.springframework.stereotype.Repository;
@@ -22,6 +27,34 @@ public class OrderRepository {
 
     public Order findOne(Long orderId) {
         return em.find(Order.class, orderId);
+    }
+
+    public List<Order> findAll(OrderSearch orderSearch) {
+        QOrder order = QOrder.order;
+        QMember member = QMember.member;
+
+        JPAQueryFactory query = new JPAQueryFactory(em);
+        return query.select(order)
+                .from(order)
+                .join(order.member, member)
+                .where(statusEq(orderSearch.getOrderStatus()), nameLike(orderSearch.getMemberName())) // 동적쿼리
+//                .where(order.status.eq(orderSearch.getOrderStatus())) // 정적쿼리
+                .limit(1000)
+                .fetch();
+    }
+
+    private BooleanExpression nameLike(String nameCond) {
+        if (!StringUtils.hasText(nameCond)) {
+            return null;
+        }
+        return QMember.member.name.like(nameCond);
+    }
+
+    private BooleanExpression statusEq(OrderStatus statusCond) {
+        if(statusCond == null) {
+            return null;
+        }
+        return QOrder.order.status.eq(statusCond);
     }
 
     public List<Order> findAllByString(OrderSearch orderSearch) {
