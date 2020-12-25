@@ -5,16 +5,17 @@ import com.wannistudio.datajpa.entity.Member;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
 
+import javax.persistence.LockModeType;
+import javax.persistence.QueryHint;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-public interface MemberRepository extends JpaRepository<Member, Long> {
+public interface MemberRepository extends JpaRepository<Member, Long>, MemberRepositoryCustom {
     // 경우에 따라 메소드명이 너무 길어진다.
     List<Member> findByUsernameAndAgeGreaterThan(String username, int age);
 
@@ -47,4 +48,34 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
             countQuery = "select count(m.username) from Member m")
     Page<Member> findByAge(int age, Pageable pageable);
 
+    @Modifying(clearAutomatically = true)
+    // 업데이트 쿼리에 이 어노테이션이 없으면 InvalidDataAccessApiUsageException 오류가 뜬다.
+    // clearAutomatically = true 를 선언해줌으로서, 영속성 컨텍스트를 entityManager 없이 초기화 해준다.
+    @Query("update Member m set m.age = m.age + 1 where  m.age >= :age")
+    int bulkAgePlus(@Param("age") int age);
+
+    @Query("select m from Member m left join fetch m.team")
+    List<Member> findMemberFetchJoin();
+
+    /*
+    * 복잡한 페치조인을 '@EntityGraph' 로 쉽게 대처가능하다.
+    * */
+    // 간단한 페치조인은 이런 식으로 대체가능.
+    @Override
+    @EntityGraph(attributePaths = {"team"})
+    List<Member> findAll();
+
+    @EntityGraph(attributePaths = {"team"})
+    @Query("select m from Member m")
+    List<Member> findMemberEntityGraph();
+
+    @EntityGraph(attributePaths = {"team"})
+//    @EntityGraph("Member.all")
+    List<Member> findEntityGraphByUsername(@Param("username") String username);
+
+    @QueryHints(value = @QueryHint(name = "org.hibernate.readOnly", value = "true"))
+    Member findReadOnlyByUsername(String username);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    List<Member> findLockByUsername(String username);
 }
